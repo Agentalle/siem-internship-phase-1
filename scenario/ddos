@@ -18,3 +18,18 @@ The goal was to detect a DDoS attack by identifying a sudden spike in HTTP reque
 
 ## Detection Logic / Query
 I used the following Splunk query to detect a spike in HTTP requests:
+This query counts HTTP requests per minute and triggers an alert if the count exceeds 1000.
+
+## Sample Alert Screenshot
+[Attach a screenshot of the Splunk alert showing the traffic spike during the attack]
+
+## Logs or Sample Event
+Here’s a sample log entry from `/var/log/apache2/access.log`: This shows repeated GET requests from the attacker IP during the flood.
+
+## Analyst Notes
+- The alert might trigger false positives during legitimate traffic spikes (e.g., a viral blog post). I’d refine it by adding filters for specific client IPs or request patterns.
+- The attack significantly slowed down the web server, confirming the impact of a DDoS.
+
+## Detection Status
+Successfully implemented.
+here is screenshot: 
