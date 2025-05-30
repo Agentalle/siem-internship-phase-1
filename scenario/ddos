@@ -1,0 +1,20 @@
+# Detection Use Case: DDoS Attack (HTTP Flood)
+
+## Scenario Description
+I simulated a DDoS attack by launching an HTTP flood against a web server (Apache) running on my Linux VM (IP: 192.168.123.128). The attack was performed from my host Windows machine (IP: 192.168.123.1) using hping3 to flood the target with TCP SYN packets on port 80.
+
+## Objective
+The goal was to detect a DDoS attack by identifying a sudden spike in HTTP requests and create an alert in Splunk to notify me of such activity in the future.
+
+## Tools Used
+- **SIEM:** Splunk (installed on host Windows machine)
+- **Log Source:** Linux VM (Apache web server)
+- **Attack Tool:** hping3 (on host Windows machine via WSL)
+
+## Event ID / Data Source Mapping
+- **Log File:** `/var/log/apache2/access.log` on the Linux VM
+- **Sourcetype:** `apache_access` in Splunk
+- **Event Description:** HTTP requests logged as access attempts, showing client IPs and request timestamps
+
+## Detection Logic / Query
+I used the following Splunk query to detect a spike in HTTP requests:
