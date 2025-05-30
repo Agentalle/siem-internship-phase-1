@@ -1,0 +1,33 @@
+# Detection Use Case: Hidden User Account Creation
+
+## Scenario Description
+I simulated hidden user creation on my Linux VM (IP: 192.168.123.128) by creating a new user named `hiddenuser` with the command `sudo useradd -m hiddenuser -p $(openssl passwd -1 Password123!)`. I also added the user to the `sudo` group to mimic privilege escalation.
+
+## Objective
+The goal was to detect unauthorized user creation by monitoring system commands with `auditd`, and create a Splunk alert to flag this activity, mapping to MITRE ATT&CK T1136 (Create Account).
+
+## Tools Used
+- **SIEM:** Splunk (installed on host Windows machine)
+- **Log Source:** Linux VM (Ubuntu 22.04)
+- **Monitoring Tool:** `auditd` on the Linux VM
+
+## Event ID / Data Source Mapping
+- **Log File:** `/var/log/audit/audit.log` on the Linux VM
+- **Sourcetype:** `linux_audit` in Splunk
+- **Event Description:** Audit events showing user creation (e.g., `useradd` command creating `hiddenuser`)
+
+## Detection Logic / Query
+I used this Splunk query to detect user creation:This query looks for `useradd` commands creating the `hiddenuser` account and triggers an alert if detected.
+
+## Sample Alert Screenshot
+[Attach a screenshot of the Splunk alert showing the user creation event]
+
+## Logs or Sample Event
+Here’s a sample log from `/var/log/audit/audit.log` during the user creation:This shows the `useradd` command creating the `hiddenuser` account.
+
+## Analyst Notes
+- This detection might catch legitimate user creation by admins. I’d add filters for specific users or timeframes to reduce false positives.
+- The alert worked well, catching the exact command and user created.
+
+## Detection Status
+Successfully implemented.
