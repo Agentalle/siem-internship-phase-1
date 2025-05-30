@@ -4,7 +4,7 @@
 Hey there! This repo is my work for my internship at Srida IT Consultancies, where I built a virtual SOC (Security Operations Center) to simulate and detect cyber attacks. I used a Linux VM as the target, my Windows host as the attacker, and Splunk for log analysis. The goal was to simulate attacks, detect them with Splunk, and document everything.
 
 <div align="center">
-  <img src="images/network_diagram.png" alt="Network Diagram" width="500">
+  <img src="![image](https://github.com/user-attachments/assets/df0c19c5-ad67-4326-8431-6b3f563a73c8)" alt="Network Diagram" width="500">
 </div>
 
 ## Project Setup
