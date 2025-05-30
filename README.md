@@ -1,4 +1,3 @@
-# siem-internship-phase-1,2
 # Cybersecurity War Room - Phase 1 & 2
 
 ## Overview
