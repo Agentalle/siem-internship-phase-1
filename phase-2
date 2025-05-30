@@ -1,0 +1,44 @@
+Since you’ve asked for answers to all the questions you previously listed for "Phase 1: Foundation Setup – Your Cybersecurity War Room," I’ll provide concise, human-like responses for each. These questions cover your lab setup, scenarios, and reflections, and they align with your current setup: a Linux VM in VMware as the target, your host Windows machine as the attacker, and Splunk on your host for log analysis. It’s 10:59 PM IST on Friday, May 30, 2025, so let’s get to it!
+
+1. What is the role of SIEM in modern cybersecurity?
+A SIEM, like Splunk in your setup, collects logs from systems, analyzes them for threats, and alerts you in real-time. It’s your cybersecurity lookout, helping spot attacks, investigate incidents, and meet compliance needs.
+
+2. What challenges did you face while setting up your lab?
+I first struggled with the Wazuh OVA import in VirtualBox—it kept failing with a disk error. Then, setting up Splunk to collect logs from my Linux VM took some tweaking, especially getting the Universal Forwarder to send logs over the network.
+
+3. What are the differences between Sysmon logs and Windows Security logs?
+Windows Security logs capture system events like logins (Event ID 4624) or account changes (Event ID 4720). Sysmon logs dig deeper, logging process creation (Event ID 1), network connections (Event ID 3), and file changes—better for detailed forensics. (Note: Since your target is Linux, you used auditd instead of Sysmon, but this applies if you add a Windows target later.)
+
+4. How does a brute force attack appear in logs? Mention specific Event IDs.
+On your Linux VM, a brute force attack on SSH shows in /var/log/auth.log as multiple “Failed password” entries, followed by “Accepted password” for a successful login. On Windows, it’s Event ID 4625 (failed logins) and Event ID 4624 (successful login) in Security logs.
+
+5. How would you detect a login outside normal business hours?
+In Splunk, I search for SSH logins outside 9 AM–5 PM on my Linux VM:
+
+#index="main" sourcetype="linux_secure" "Accepted password" | where strftime(_time, "%H") < 9 OR strftime(_time, "%H") > 17
+I set an alert to flag these as suspicious logons (T1078).
+
+6. Describe how RDP lateral movement is tracked in event logs.
+Since your setup uses Linux with SSH, RDP doesn’t apply directly, but if you had a Windows target: RDP lateral movement shows as Event ID 4624 in Security logs with Logon Type 10 (RemoteInteractive), including the source IP of the attacker and the target user account.
+
+7. What is the risk of log tampering, and how can we detect it?
+Log tampering lets attackers hide their actions, delaying detection. On your Linux VM, I detected it using auditd logs in Splunk:
+#index="main" sourcetype="linux_audit" "truncate" "/var/log/auth.log"
+This caught my truncate command on /var/log/auth.log (T1070). On Windows, Sysmon Event ID 1 would catch processes like wevtutil cl.
+
+8. What improvements would you make in your lab setup if given more time?
+I’d add a second Linux VM for lateral movement (SSH from one VM to another), set up a dedicated SIEM VM instead of running Splunk on my host, and maybe add a Windows VM to simulate RDP attacks for more variety.
+
+9. How will this phase help you in real-world interviews or jobs?
+This phase gave me hands-on experience with Splunk, log analysis, and attack simulation. I can talk about detecting threats like brute force or log tampering, which is key for SOC analyst roles. Plus, mapping to MITRE ATT&CK makes me sound legit in interviews.
+
+10. What was your biggest takeaway from Phase 1?
+My biggest takeaway is how crucial logs are in cybersecurity. Without them, you can’t see what’s happening. Learning to use Splunk to detect attacks and map them to MITRE ATT&CK (like T1070, T1136) gave me a strong foundation for threat hunting.
+
+Bonus: Quick Recap of Your Scenarios
+You’ve already documented these in your repo:
+
+DDoS: Simulated an HTTP flood on your Linux VM’s Apache server, detected with Splunk.
+Suspicious Logon Times: SSH’d at 2:30 AM, flagged logins outside 9 AM–5 PM in Splunk (T1078).
+Log Tampering: Cleared /var/log/auth.log, caught it with auditd in Splunk (T1070).
+Hidden User Creation: Created hiddenuser on the Linux VM, detected with auditd in Splunk (T1136).
