@@ -1,0 +1,33 @@
+# Detection Use Case: Log Tampering
+
+## Scenario Description
+I simulated log tampering on my Linux VM (IP: 192.168.123.128) by clearing the SSH logs using the command `sudo truncate -s 0 /var/log/auth.log`. This mimics an attacker trying to cover their tracks after an attack, such as a brute force or SSH login.
+
+## Objective
+The goal was to detect log tampering by monitoring for modifications to critical log files like `/var/log/auth.log` using `auditd`, and create a Splunk alert to flag this activity, mapping to MITRE ATT&CK T1070 (Indicator Removal on Host).
+
+## Tools Used
+- **SIEM:** Splunk (installed on host Windows machine)
+- **Log Source:** Linux VM (Ubuntu 22.04)
+- **Monitoring Tool:** `auditd` on the Linux VM
+
+## Event ID / Data Source Mapping
+- **Log File:** `/var/log/audit/audit.log` on the Linux VM
+- **Sourcetype:** `linux_audit` in Splunk
+- **Event Description:** Audit events showing file modification (e.g., `truncate` command on `/var/log/auth.log`)
+
+## Detection Logic / Query
+I used this Splunk query to detect tampering with `/var/log/auth.log`:This query looks for `truncate` commands affecting the SSH log file and triggers an alert if detected.
+
+## Sample Alert Screenshot
+[Attach a screenshot of the Splunk alert showing the tampering event]
+
+## Logs or Sample Event
+Here’s a sample log from `/var/log/audit/audit.log` during the tampering:This shows the `truncate` command being used on `/var/log/auth.log`, indicating tampering.
+
+## Analyst Notes
+- This detection might miss other tampering methods (e.g., `rm` or `echo > /var/log/auth.log`). I’d expand the query to include those commands.
+- False positives could occur if an admin clears logs for legitimate reasons—context like user ID or timing helps here.
+
+## Detection Status
+Successfully implemented.
