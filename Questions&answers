@@ -1,0 +1,31 @@
+1. What is the role of SIEM in modern cybersecurity?
+> SIEM collects logs from devices, analyzes them for threats, and alerts you in real-time. It’s like a security guard for your network, helping detect attacks, investigate incidents, and meet compliance needs.
+
+2. What challenges did you face while setting up your lab?
+>I struggled with the Wazuh OVA import in VirtualBox—it kept failing with a disk error. I also had to adjust network settings between my host, Linux VM, and Splunk to ensure they could talk to each other. It took some trial and error.
+
+3. What are the differences between Sysmon logs and Windows Security logs?
+>Windows Security logs track system events like logins (Event ID 4624) and account changes (Event ID 4720). Sysmon logs are more detailed, capturing process creation (Event ID 1), network connections (Event ID 3), and file changes—great for deeper forensics.
+
+4. How does a brute force attack appear in logs? Mention specific Event IDs.
+>In Windows, a brute force attack shows multiple failed logins—Event ID 4625 in Security logs—followed by a successful login, Event ID 4624. On Linux, /var/log/auth.log shows "Failed password" entries for SSH attempts.
+
+5. How would you detect a login outside normal business hours?
+>In Splunk, I’d search logs for logins outside 9 AM–5 PM:
+index="main" sourcetype="linux_secure" "Accepted password" | where strftime(_time, "%H") < 9 OR strftime(_time, "%H") > 17
+Then set an alert to notify me.
+
+6. Describe how RDP lateral movement is tracked in event logs.
+>RDP lateral movement in Windows logs shows as Event ID 4624 (successful login) with Logon Type 10 (RemoteInteractive) in Security logs. You’d see the source IP of the attacking machine and the target user account.
+
+7. What is the risk of log tampering, and how can we detect it?
+>Log tampering hides an attacker’s tracks, making it hard to investigate. To detect it, use Sysmon Event ID 1 to catch processes like wevtutil cl (Windows) or auditd logs on Linux to spot commands like truncate /var/log/auth.log.
+
+8. What improvements would you make in your lab setup if given more time?
+>I’d add more VMs to simulate a larger network, use a separate SIEM VM instead of installing Splunk on my host, and set up a domain controller to mimic a real enterprise environment.
+
+9. How will this phase help you in real-world interviews or jobs?
+>This phase taught me hands-on skills like setting up a SIEM, analyzing logs, and simulating attacks. I can confidently talk about detecting threats like brute force or lateral movement, which is huge for SOC analyst roles.
+
+10. What was your biggest takeaway from Phase 1?
+>My biggest takeaway is how critical logs are in cybersecurity. Learning to analyze them with Splunk and map attacks to MITRE ATT&CK gave me a solid foundation for threat detection.
