@@ -1,4 +1,4 @@
-# siem-internship-phase-1
+# siem-internship-phase-1,2
 Hey there! This repo is my work for internship where I built a virtual SOC (Security Operations Center) to simulate and detect cyber attacks. I used a Linux VM as the target, my Windows host as the attacker, and Splunk for log analysis. The goal was to simulate attacks, detect them with Splunk, and document everything.
 Project Setup
 
@@ -25,8 +25,6 @@ suspicious-logon/: Suspicious logon times report, logs, and screenshot.
 log-tampering/: Log tampering report, logs, and screenshot.
 hidden-user/: Hidden user creation report, logs, and screenshot. 
 and many more adding as i am completing this all tasks
-
-
 
 How to Replicate
 
