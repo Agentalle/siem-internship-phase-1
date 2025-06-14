@@ -1,0 +1,163 @@
+### 1. **Detecting Fileless Malware with Sysmon/Winlogbeat**
+
+**Fileless malware** lives in memory and avoids writing files to disk.
+
+**Detection with Sysmon/Winlogbeat:**
+
+* **Sysmon Event ID 1** (Process Creation): Unusual parent-child processes like `explorer.exe → powershell.exe`.
+* **Sysmon Event ID 7** (Image Load): Tracks DLLs loaded into processes; look for unsigned or abnormal DLLs.
+* **Event ID 3** (Network Connection): Malicious PowerShell scripts often open remote connections.
+* **Winlogbeat** helps forward these logs to ELK/other SIEMs for correlation and alerting.
+
+**Detection Tip:** Look for:
+
+* `powershell.exe` or `wscript.exe` with base64-encoded commands.
+* Suspicious memory-resident payloads or anomalous behavior in memory.
+
+---
+
+### 2. **Explain and Detect DNS Tunneling**
+
+**DNS tunneling** uses DNS queries to exfiltrate data or establish C2 channels.
+
+**Detection Techniques:**
+
+* Unusually long DNS query strings (often base64 or hex).
+* High volume of DNS traffic from a single host.
+* NXDOMAIN or TXT record anomalies.
+* Same domain repeatedly queried with changing subdomains.
+
+**Tooling:**
+
+* **Sysmon ID 22** (DNS Query - Windows 10+).
+* **Suricata + Zeek** for protocol-level DNS inspection.
+
+---
+
+### 3. **Indicators of Lateral Movement**
+
+Lateral movement means moving from one system to another within a network.
+
+**Indicators:**
+
+* Use of **WMI**, **PsExec**, **SMB**, **RDP**, or **Remote PowerShell**.
+* **Sysmon Event ID 3**: Outbound SMB or RPC traffic to internal IPs.
+* **Logon Events 4624/4672**: Look for logons from unusual IPs or at odd hours.
+* Multiple authentication failures followed by success.
+* Execution of tools like `net.exe`, `ipconfig.exe`, `quser`.
+
+---
+
+### 4. **Common Persistence Methods in Windows**
+
+Persistence ensures malware survives reboots or logouts.
+
+**Examples:**
+
+* **Registry Run Keys** (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`)
+* **Scheduled Tasks / AT Jobs**
+* **WMI Event Subscriptions**
+* **Startup folder scripts**
+* **DLL Hijacking**
+* **Services Creation** (look for `sc.exe` usage)
+
+**Detect using:**
+
+* **Sysmon Event ID 1, 13, 19, 20, 21**
+* Windows Event ID **7045**: A service was installed.
+
+---
+
+### 5. **Detecting Mimikatz and Credential Dumping**
+
+**Indicators:**
+
+* Access to `lsass.exe` using `SeDebugPrivilege`.
+* Use of tools like `procdump.exe`, `taskmgr`, `mimikatz.exe`.
+* **Sysmon ID 10**: Process accessed another process (look for access to `lsass.exe`).
+* **Event ID 4688**: Tracks command-line execution.
+
+**EDR Detection:**
+
+* Look for loading of `sekurlsa.dll`, `dpapi.dll` by suspicious processes.
+
+---
+
+### 6. **Key Sysmon Event IDs for PowerShell**
+
+* **Event ID 1**: Detect PowerShell execution, especially with encoded commands.
+* **Event ID 3**: PowerShell initiating network connections.
+* **Event ID 7**: Suspicious DLLs loaded into PowerShell.
+* **Event ID 11**: File creation by PowerShell scripts.
+
+Also enable **PowerShell Module Logging** and **Script Block Logging** in Windows Defender or GPO.
+
+---
+
+### 7. **PowerShell Payloads and Evasion Tactics (EDR)**
+
+**Payload Examples:**
+
+* `Invoke-Mimikatz`, `Empire`, `PowerView`, `PowerSploit`.
+
+**Evasion Techniques:**
+
+* Obfuscation with tools like `Invoke-Obfuscation`.
+* Base64-encoded payloads.
+* `Reflection.Assembly.Load()` to execute in-memory.
+* Use of alternate execution policy (`-ExecutionPolicy Bypass`).
+
+**Defensive Tip:** Enable AMSI (Antimalware Scan Interface) and script block logging.
+
+---
+
+### 8. **Brute-force RDP Detection Strategies**
+
+**Detection:**
+
+* **Event ID 4625**: Failed logon (look for Type 10 = RDP).
+* Multiple failures followed by **4624** (successful login).
+* Lockouts (Event ID **4740**) after repeated attempts.
+* Login attempts from external IPs.
+
+**SIEM Rules:**
+
+* X failed logins in Y minutes from same IP.
+* Alert on login attempts outside business hours.
+
+---
+
+### 9. **Honeypots for Lateral Movement**
+
+Deploy honeypots as bait to catch internal attackers.
+
+**Types:**
+
+* **Canary Tokens**: Fake credentials or documents.
+* **Honey Users/Hosts**: Accounts/machines with no real purpose.
+* Fake SMB shares, fake RDP endpoints.
+
+**Tools:**
+
+* **OpenCanary**, **Honeyd**, **Kippo**, **Cowrie**.
+* Monitor for any interaction with these resources as they indicate potential compromise.
+
+---
+
+### 10. Correlating SIEM Logs in APT Scenarios
+
+APT = Advanced Persistent Threat.** You need multi-log correlation.
+
+key Logs to Correlate:
+
+Authentication logs: Repeated 4625s, followed by 4624 from the same IP.
+Process creation: Sysmon ID 1 showing PowerShell or cmd used for recon.
+Network traffic: Sysmon ID 3 or proxy logs showing beaconing to C2.
+Persistence creation: New services (7045), scheduled tasks (4698).
+DNS logs: Look for tunneling or rare domains.
+
+Correlate using:
+
+MITRE ATT\&CK framework tags.
+Timeline-based visualizations in ELK/Graylog/Splunk.
+Threat intelligence enrichment to identify known IOCs.
