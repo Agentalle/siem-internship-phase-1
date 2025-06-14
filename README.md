@@ -1,4 +1,4 @@
-# Cybersecurity War Room - Phase 1 & 2
+# Cybersecurity War Room - Phase 1 & 2 & 3
 
 ## Overview
 Hey there! This repo is my work for my internship at Srida IT Consultancies, where I built a virtual SOC (Security Operations Center) to simulate and detect cyber attacks. I used a Linux VM as the target, my Windows host as the attacker, and Splunk for log analysis. The goal was to simulate attacks, detect them with Splunk, and document everything.
