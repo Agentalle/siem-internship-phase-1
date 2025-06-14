@@ -1,0 +1,34 @@
+# Detection Use Case: Privilege Escalation via Sudo Misconfiguration (T1548)
+
+## Scenario Description
+I simulated privilege escalation on my Linux VM (IP: 192.168.123.128) by exploiting a `sudo` misconfiguration. After gaining initial access as `admin1` (via SSH), I used `sudo /bin/bash` to get a root shell, leveraging a `NOPASSWD` entry in `/etc/sudoers`.
+
+## Objective
+The goal was to detect unauthorized privilege escalation by monitoring `sudo` commands, mapping to MITRE ATT&CK T1548 (Abuse Elevation Control Mechanism).
+
+## Tools Used
+- **SIEM:** Splunk (on host Windows machine)
+- **Log Source:** Linux VM (Ubuntu 22.04)
+- **Monitoring Tool:** `auditd` on the Linux VM
+
+## Event ID / Data Source Mapping
+- **Log File:** `/var/log/auth.log` (sourcetype `linux_secure`)
+- **Log File:** `/var/log/audit/audit.log` (sourcetype `linux_audit`)
+- **Event Description:** `sudo` commands escalating to root (e.g., `sudo /bin/bash`)
+
+## Detection Logic / Query
+I used this Splunk query to detect the escalation:This query flags `sudo` commands by `admin1` that spawn a root shell.
+
+## Sample Alert Screenshot
+<div align="center">
+  <img src="privilege_escalation_screenshot.png" alt="Privilege Escalation Alert" width="600">
+</div>
+
+## Logs or Sample Event
+From `/var/log/auth.log`:
+## Analyst Notes
+- This alert might flag legitimate `sudo` usage by admins. I’d add filters for specific commands or users to reduce false positives.
+- The misconfiguration (`NOPASSWD`) made this escalation easy—hardening `sudoers` is key.
+
+## Detection Status
+Successfully implemented.
