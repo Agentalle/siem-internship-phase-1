@@ -1,0 +1,33 @@
+# Detection Use Case: Command and Control Beaconing Behavior (T1071)
+
+## Scenario Description
+I simulated C2 beaconing behavior on my Linux VM (IP: 192.168.123.128). After gaining access as `admin1`, I deployed a script (`beacon.sh`) that periodically sends HTTP requests to a simulated C2 server (IP: 192.168.123.1:8080) every 60 seconds, mimicking a compromised system communicating with an attacker.
+
+## Objective
+The goal was to detect C2 beaconing by identifying periodic network activity, mapping to MITRE ATT&CK T1071 (Application Layer Protocol).
+
+## Tools Used
+- **SIEM:** Splunk (on host Windows machine)
+- **Log Source:** Linux VM (Ubuntu 22.04)
+- **Monitoring Tool:** `auditd` on the Linux VM
+
+## Event ID / Data Source Mapping
+- **Log File:** `/var/log/audit/audit.log` (sourcetype `linux_audit`)
+- **Event Description:** Periodic `curl` commands to the C2 server
+
+## Detection Logic / Query
+I used this Splunk query to detect the beaconing:This query identifies repeated `curl` requests at regular intervals (every 60 seconds).
+
+## Sample Alert Screenshot
+<div align="center">
+  <img src="c2_beaconing_screenshot.png" alt="C2 Beaconing Alert" width="600">
+</div>
+
+## Logs or Sample Event
+From `/var/log/audit/audit.log`:
+## Analyst Notes
+- This alert might flag legitimate periodic traffic (e.g., system updates). I’d refine it by filtering known good IPs or adding more context (e.g., user agent strings).
+- The 60-second interval is a strong indicator of beaconing, but real-world C2 might use randomized intervals.
+
+## Detection Status
+Successfully implemented.
