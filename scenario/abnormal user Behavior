@@ -1,0 +1,34 @@
+# Detection Use Case: Abnormal User Behavior (T1078)
+
+## Scenario Description
+I simulated abnormal user behavior on my Linux VM (IP: 192.168.123.128). Using the compromised account `admin1`, I logged in at 2:30 AM (outside normal hours of 9 AM–5 PM) and accessed `/etc/passwd`, mimicking an attacker using valid credentials for malicious purposes.
+
+## Objective
+The goal was to detect abnormal user behavior, such as after-hours logins and access to sensitive files, mapping to MITRE ATT&CK T1078 (Valid Accounts).
+
+## Tools Used
+- **SIEM:** Splunk (on host Windows machine)
+- **Log Source:** Linux VM (Ubuntu 22.04)
+- **Monitoring Tool:** `auditd` on the Linux VM
+
+## Event ID / Data Source Mapping
+- **Log File:** `/var/log/auth.log` (sourcetype `linux_secure`)
+- **Log File:** `/var/log/audit/audit.log` (sourcetype `linux_audit`)
+- **Event Description:** SSH logins outside business hours and access to `/etc/passwd`
+
+## Detection Logic / Query
+I used this Splunk query to detect the behavior:This query flags after-hours logins and suspicious file access by `admin1`.
+
+## Sample Alert Screenshot
+<div align="center">
+  <img src="abnormal_user_behavior_screenshot.png" alt="Abnormal User Behavior Alert" width="600">
+</div>
+
+## Logs or Sample Event
+From `/var/log/auth.log`:
+## Analyst Notes
+- This alert might flag legitimate after-hours logins by admins. I’d refine it by baselining `admin1`’s normal behavior more thoroughly.
+- Accessing `/etc/passwd` isn’t always malicious, but combined with the login time, it’s suspicious.
+
+## Detection Status
+Successfully implemented.  
