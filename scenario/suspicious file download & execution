@@ -1,0 +1,33 @@
+# Detection Use Case: Suspicious File Download & Execution (T1105)
+
+## Scenario Description
+I simulated a suspicious file download and execution on my Linux VM (IP: 192.168.123.128). After gaining access as `admin1`, I downloaded a malicious script (`malicious.sh`) from my host (IP: 192.168.123.1) using `wget` and executed it, creating a file `/tmp/compromised.txt` as proof.
+
+## Objective
+The goal was to detect the download and execution of a malicious file, mapping to MITRE ATT&CK T1105 (Ingress Tool Transfer).
+
+## Tools Used
+- **SIEM:** Splunk (on host Windows machine)
+- **Log Source:** Linux VM (Ubuntu 22.04)
+- **Monitoring Tool:** `auditd` on the Linux VM
+
+## Event ID / Data Source Mapping
+- **Log File:** `/var/log/audit/audit.log` (sourcetype `linux_audit`)
+- **Event Description:** `wget` commands downloading files and `bash` executing scripts
+
+## Detection Logic / Query
+I used this Splunk query to detect the activity:This query flags file downloads from my host and the execution of the script.
+
+## Sample Alert Screenshot
+<div align="center">
+  <img src="suspicious_file_download_screenshot.png" alt="Suspicious File Download Alert" width="600">
+</div>
+
+## Logs or Sample Event
+From `/var/log/audit/audit.log`:
+## Analyst Notes
+- This alert might flag legitimate file downloads. I’d refine it by adding filters for known good IPs or file names.
+- The script execution created a file in `/tmp/`, which could be a sign of persistence—further investigation is needed.
+
+## Detection Status
+Successfully implemented.
