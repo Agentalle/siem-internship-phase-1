@@ -1,0 +1,33 @@
+# Detection Use Case: DNS Tunneling - Data Exfiltration via Encoded DNS Subdomain Queries (T1048)
+
+## Scenario Description
+I simulated DNS tunneling on my Linux VM (IP: 192.168.123.128) to exfiltrate data. After gaining access as `admin1`, I used a script (`dns_tunnel.sh`) to encode data ("SensitiveData123") into Base64 and send it via DNS queries to a malicious DNS server (IP: 192.168.123.1), using subdomains like `U2Vuc2l0aXZlRGF0YTEyMw==.exfil.malicious.com`.
+
+## Objective
+The goal was to detect data exfiltration via DNS tunneling by identifying encoded DNS queries, mapping to MITRE ATT&CK T1048 (Exfiltration Over Alternative Protocol).
+
+## Tools Used
+- **SIEM:** Splunk (on host Windows machine)
+- **Log Source:** Linux VM (Ubuntu 22.04)
+- **Monitoring Tool:** `auditd` on the Linux VM
+
+## Event ID / Data Source Mapping
+- **Log File:** `/var/log/audit/audit.log` (sourcetype `linux_audit`)
+- **Event Description:** DNS queries (`dig`) with Base64-encoded subdomains
+
+## Detection Logic / Query
+I used this Splunk query to detect the tunneling:This query flags DNS queries with Base64-encoded subdomains.
+
+## Sample Alert Screenshot
+<div align="center">
+  <img src="dns_tunneling_screenshot.png" alt="DNS Tunneling Alert" width="600">
+</div>
+
+## Logs or Sample Event
+From `/var/log/audit/audit.log`:From the DNS server (`/tmp/dns.log` on the host):
+## Analyst Notes
+- This alert might flag legitimate DNS queries with unusual subdomains. I’d refine it by looking for high query volumes or specific patterns (e.g., Base64 length).
+- Real-world DNS tunneling might use more sophisticated encoding—monitoring query frequency is key.
+
+## Detection Status
+Successfully implemented.
